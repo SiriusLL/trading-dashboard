@@ -18,7 +18,7 @@ function App() {
     let pairs = [];
 
     const apiCall = async () => {
-      await fetch(`${url}/products`)
+      await fetch(`${burl}/products`)
         .then((res) => res.json())
         .then((data) => (pairs = data));
       console.log("pairs", pairs);
