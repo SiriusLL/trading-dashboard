@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { formatData } from "./utils";
+import Dashboard from "./components/Dashboard";
 
 import "./App.css";
 
 function App() {
-  const [currencies, setCurrencies] = useState([]);
-  const [pair, setPair] = useState("");
-  const [price, setPrice] = useState("0.00");
-  const [pastData, setPastData] = useState({});
+  const [currencies, setcurrencies] = useState([]);
+  const [pair, setpair] = useState("");
+  const [price, setprice] = useState("0.00");
+  const [pastData, setpastData] = useState({});
   const ws = useRef(null);
 
   let first = useRef(false);
-  const burl = `https://api.pro.coinbase.com`;
+  const url = "https://api.pro.coinbase.com";
 
   useEffect(() => {
     ws.current = new WebSocket("wss://ws-feed.pro.coinbase.com");
@@ -19,13 +20,13 @@ function App() {
     let pairs = [];
 
     const apiCall = async () => {
-      await fetch(`${burl}/products`)
+      await fetch(url + "/products")
         .then((res) => res.json())
         .then((data) => (pairs = data));
-      console.log("pairs", pairs);
+
       let filtered = pairs.filter((pair) => {
         if (pair.quote_currency === "USD") {
-          return pairs;
+          return pair;
         }
       });
 
@@ -39,8 +40,7 @@ function App() {
         return 0;
       });
 
-      console.log("filt", filtered);
-      setCurrencies(filtered);
+      setcurrencies(filtered);
 
       first.current = true;
     };
@@ -58,22 +58,21 @@ function App() {
       product_ids: [pair],
       channels: ["ticker"],
     };
-
     let jsonMsg = JSON.stringify(msg);
     ws.current.send(jsonMsg);
 
-    let historicalDataURL = `${burl}/products/${pair}/candles?granularity=86400`;
-    const fetchHistoryicalData = async () => {
+    let historicalDataURL = `${url}/products/${pair}/candles?granularity=86400`;
+    const fetchHistoricalData = async () => {
       let dataArr = [];
       await fetch(historicalDataURL)
         .then((res) => res.json())
         .then((data) => (dataArr = data));
 
       let formattedData = formatData(dataArr);
-      setPastData(formattedData);
+      setpastData(formattedData);
     };
 
-    fetchHistoryicalData();
+    fetchHistoricalData();
 
     ws.current.onmessage = (e) => {
       let data = JSON.parse(e.data);
@@ -82,7 +81,7 @@ function App() {
       }
 
       if (data.product_id === pair) {
-        setPrice(data.price);
+        setprice(data.price);
       }
     };
   }, [pair]);
@@ -97,19 +96,22 @@ function App() {
 
     ws.current.send(unsub);
 
-    setPair(e.target.value);
+    setpair(e.target.value);
   };
   return (
-    <div className="App">
-      <select name="currency" value={pair} onChange={handleSelect}>
-        {currencies.map((cur, i) => {
-          return (
-            <option key={i} value={cur.id}>
-              {cur.display_name}
-            </option>
-          );
-        })}
-      </select>
+    <div className="container">
+      {
+        <select name="currency" value={pair} onChange={handleSelect}>
+          {currencies.map((cur, idx) => {
+            return (
+              <option key={idx} value={cur.id}>
+                {cur.display_name}
+              </option>
+            );
+          })}
+        </select>
+      }
+      <Dashboard price={price} data={pastData} />
     </div>
   );
 }
