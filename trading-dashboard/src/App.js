@@ -46,11 +46,56 @@ function App() {
 
     apiCall();
   }, []);
-  return (
-    <div className="App">
-      <header className="App-header">hello World~~!!</header>
-    </div>
-  );
+
+  useEffect(() => {
+    if (!first.current) {
+      return;
+    }
+
+    let msg = {
+      type: "subscribe",
+      product_ids: [pair],
+      channels: ["ticker"],
+    };
+
+    let jsonMsg = JSON.stringify(msg);
+    ws.current.send(jsonMsg);
+
+    let historicalDataURL = `${url}/products/${pair}/candles?granularity=86400`;
+    const fetchHistoryicalData = async () => {
+      let dataArr = [];
+      await fetch(historicalDataURL)
+        .then((res) => res.json())
+        .then(() => (dataArr = data));
+    };
+
+    fetchHistoryicalData();
+
+    ws.current.onmessage = (e) => {
+      let data = JSON.parse(e.data);
+      if (data.type !== "ticker") {
+        return;
+      }
+
+      if (data.product_id === pair) {
+        setPrice(data.price);
+      }
+    };
+  }, [pair]);
+
+  const handleSelect = (e) => {
+    let unsubMsg = {
+      type: "unsubscribe",
+      product_ids: [pair],
+      channels: ["ticker"],
+    };
+    let unsub = JSON.stringify(unsubMsg);
+
+    ws.current.send(unsub);
+
+    setPair(e.target.value);
+  };
+  return <div className="App"></div>;
 }
 
 export default App;
