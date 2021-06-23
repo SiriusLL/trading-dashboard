@@ -5,10 +5,10 @@ import Dashboard from "./components/Dashboard";
 import "./App.css";
 
 function App() {
-  const [currencies, setcurrencies] = useState([]);
-  const [pair, setpair] = useState("");
-  const [price, setprice] = useState("0.00");
-  const [pastData, setpastData] = useState({});
+  const [currencies, setCurrencies] = useState([]);
+  const [pair, setPair] = useState("");
+  const [price, setPrice] = useState("0.00");
+  const [pastData, setPastData] = useState({});
   const ws = useRef(null);
 
   let first = useRef(false);
@@ -40,7 +40,7 @@ function App() {
         return 0;
       });
 
-      setcurrencies(filtered);
+      setCurrencies(filtered);
 
       first.current = true;
     };
@@ -69,7 +69,7 @@ function App() {
         .then((data) => (dataArr = data));
 
       let formattedData = formatData(dataArr);
-      setpastData(formattedData);
+      setPastData(formattedData);
     };
 
     fetchHistoricalData();
@@ -81,7 +81,7 @@ function App() {
       }
 
       if (data.product_id === pair) {
-        setprice(data.price);
+        setPrice(data.price);
       }
     };
   }, [pair]);
@@ -96,8 +96,9 @@ function App() {
 
     ws.current.send(unsub);
 
-    setpair(e.target.value);
+    setPair(e.target.value);
   };
+  console.log("ppp", price);
   return (
     <div className="container">
       {
