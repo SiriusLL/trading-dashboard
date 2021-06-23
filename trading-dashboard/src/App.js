@@ -41,7 +41,7 @@ function App() {
       console.log("filt", filtered);
       setCurrencies(filtered);
 
-      first.currency = true;
+      first.current = true;
     };
 
     apiCall();
@@ -61,12 +61,12 @@ function App() {
     let jsonMsg = JSON.stringify(msg);
     ws.current.send(jsonMsg);
 
-    let historicalDataURL = `${url}/products/${pair}/candles?granularity=86400`;
+    let historicalDataURL = `${burl}/products/${pair}/candles?granularity=86400`;
     const fetchHistoryicalData = async () => {
       let dataArr = [];
       await fetch(historicalDataURL)
         .then((res) => res.json())
-        .then(() => (dataArr = data));
+        .then((data) => (dataArr = data));
     };
 
     fetchHistoryicalData();
@@ -95,7 +95,19 @@ function App() {
 
     setPair(e.target.value);
   };
-  return <div className="App"></div>;
+  return (
+    <div className="App">
+      <select name="currency" value={pair} onChange={handleSelect}>
+        {currencies.map((cur, i) => {
+          return (
+            <option key={i} value={cur.id}>
+              {cur.display_name}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  );
 }
 
 export default App;
