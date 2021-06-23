@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { formatData } from "./utils";
 
 import "./App.css";
 
@@ -67,6 +68,9 @@ function App() {
       await fetch(historicalDataURL)
         .then((res) => res.json())
         .then((data) => (dataArr = data));
+
+      let formattedData = formatData(dataArr);
+      setPastData(formattedData);
     };
 
     fetchHistoryicalData();
